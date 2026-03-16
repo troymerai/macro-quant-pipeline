@@ -1,0 +1,40 @@
+{
+  "sources": [
+    {
+      "id": "fred_interest_rate",
+      "name": "미국 기준금리 (FRED)",
+      "category": "macro_indicator",
+      "type": "hard_data",
+      "trust_level": 100,
+      "url": "https://api.stlouisfed.org/fred/series/observations?series_id=FEDFUNDS",
+      "method": "api"
+    },
+    {
+      "id": "yahoo_finance_spy",
+      "name": "S&P 500 시황 뉴스",
+      "category": "market_news",
+      "type": "soft_data",
+      "trust_level": 80,
+      "url": "https://finance.yahoo.com/quote/SPY/news",
+      "method": "scraping"
+    },
+    {
+      "id": "youtube_teiber",
+      "name": "테이버 시황 분석",
+      "category": "market_opinion",
+      "type": "soft_data",
+      "trust_level": 60,
+      "url": "https://www.youtube.com/@teiber",
+      "method": "scraping"
+    },
+    {
+      "id": "youtube_steam_protractor",
+      "name": "증기 각도기 시장 전망",
+      "category": "market_opinion",
+      "type": "soft_data",
+      "trust_level": 65,
+      "url": "https://www.youtube.com/@steam_protractor",
+      "method": "scraping"
+    }
+  ]
+}

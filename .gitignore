@@ -1,0 +1,13 @@
+# Environments
+.env
+
+# Python Caches
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# VS Code Settings
+.vscode/
+
+# Outputs & Temp files
+outputs/

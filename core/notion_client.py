@@ -145,6 +145,7 @@ def fetch_selected_from_notion():
             page_content = get_page_content(page_id)
 
             selected_data.append({
+                "id": page_id,
                 "title": title,
                 "url": page_url,
                 "content": page_content
@@ -156,6 +157,28 @@ def fetch_selected_from_notion():
     except Exception as e:
         print(f"❌ 노션 데이터 조회 실패: {e}")
         return []
+    
+def update_notion_checkbox(page_id: str, property_name="채택", is_checked=False) -> bool:
+    """특정 노션 페이지의 체크박스 상태를 업데이트(초기화)합니다."""
+    url = f"https://api.notion.com/v1/pages/{page_id}"
+    
+    # 수정할 속성(Property)만 담아서 보냅니다.
+    payload = {
+        "properties": {
+            property_name: {
+                "checkbox": is_checked
+            }
+        }
+    }
+    
+    try:
+        # 노션 API에서 수정을 의미하는 PATCH 메서드 사용
+        res = requests.patch(url, headers=HEADERS, json=payload)
+        res.raise_for_status()
+        return True
+    except Exception as e:
+        print(f"⚠️ 노션 체크박스 업데이트 실패 ({page_id}): {e}")
+        return False
 
 
 # 단독 실행 시 파트 B 테스트용 코드
@@ -166,3 +189,4 @@ if __name__ == "__main__":
         print(f"\n📌 제목: {d['title']}")
         print(f"🔗 링크: {d['url']}")
         print(f"📝 내용 미리보기: {d['content'][:50]}...")
+

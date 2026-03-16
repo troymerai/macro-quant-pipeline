@@ -1,17 +1,22 @@
 import sys
 import os
-from core.notion_client import fetch_selected_from_notion, update_notion_checkbox # 👈 업데이트 함수 임포트
+from core.notion_client import fetch_selected_from_notion, update_notion_checkbox
 from core.gemini_client import generate_deep_research_report
 from workers.pdf_renderer import render_markdown_to_pdf
-from core.telegram_client import send_pdf_report
+from core.telegram_client import send_pdf_report, send_admin_message # 👈 관리자 알림 함수 추가
 
 def main():
     try:
+        # 1. 시작 알림 보고
+        send_admin_message("⏳ <b>[Part B 시작]</b> 노션 데이터를 바탕으로 AI 딥리서치 및 리포트 생성을 시작합니다.\n<i>(PDF 렌더링 및 채널 배포 진행 중...)</i>")
+
         print("\n=== [1단계: 노션 클린 데이터 추출] ===")
         selected_data = fetch_selected_from_notion()
         
         if not selected_data:
-            print("⚠️ 채택된 데이터가 없습니다. 파이프라인을 종료합니다.")
+            empty_msg = "⚠️ 채택된 데이터가 없어 리포트를 발행하지 않고 종료합니다."
+            print(empty_msg)
+            send_admin_message(empty_msg) # 데이터 없을 때도 보고
             sys.exit(0)
 
         print("\n=== [2단계: Gemini Deep Research 가동] ===")
@@ -25,31 +30,34 @@ def main():
         
         is_sent = send_pdf_report(pdf_path, caption_msg)
         
-        # 👇 [새로 추가된 핵심 로직: 5단계 사후 처리]
         if is_sent:
             print("✅ 텔레그램 채널 전송 성공!")
-            
             print("\n=== [5단계: 사후 처리 및 스토리지 최적화] ===")
             
-            # 1. 노션 체크박스 초기화 (내일 중복 발행 방지)
             print("🧹 사용된 노션 데이터의 '채택' 상태를 초기화합니다...")
             for data in selected_data:
                 update_notion_checkbox(data["id"], property_name="채택", is_checked=False)
             print("✅ 노션 데이터 초기화 완료!")
 
-            # 2. 로컬 PDF 파일 삭제 (스토리지 및 깃허브 액션 최적화)
             if os.path.exists(pdf_path):
                 os.remove(pdf_path)
                 print(f"🗑️ 전송 완료된 임시 PDF 파일 삭제 완료: {pdf_path}")
+            
+            # 2. 성공 알림 보고
+            send_admin_message("✅ <b>[Part B 완료]</b> 심층 리포트 생성 및 채널 배포가 성공적으로 완료되었습니다! 노션 체크박스도 초기화했습니다.")
                 
         else:
             print("❌ 텔레그램 채널 전송 실패 (사후 처리를 진행하지 않습니다)")
+            send_admin_message("❌ <b>[Part B 에러]</b> 리포트 생성은 성공했으나, 채널 배포(PDF 전송)에 실패했습니다.")
         
         print("\n===================================")
-        print(f"🎉 [Part B 완료] 리포트 배포 및 사후 처리가 모두 성공적으로 완료되었습니다!")
+        print(f"🎉 [Part B 완료] 프로세스 종료!")
 
     except Exception as e:
-        print(f"\n❌ [Part B 에러 발생]: {str(e)}")
+        # 3. 치명적 에러 알림 보고
+        error_msg = f"❌ <b>[Part B 치명적 에러]</b> 파이프라인이 중단되었습니다.\n에러 내용: {str(e)}"
+        print(f"\n{error_msg}")
+        send_admin_message(error_msg)
         sys.exit(1)
 
 if __name__ == "__main__":

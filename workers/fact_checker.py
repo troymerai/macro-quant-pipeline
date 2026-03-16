@@ -1,5 +1,6 @@
 from core.gemini_client import ask_gemini_json
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,10 @@ def run_fact_check(collected_data: list) -> list:
             data['pollution_score'] = 100
         
         verified_results.append(data)
+        
+        # [핵심 추가] 무료 API 호출 제한(Rate Limit) 방지를 위해 매 호출 후 15초 대기
+        print("     ⏳ API 속도 제한 방지를 위해 15초 대기 중...")
+        time.sleep(15)
         
     print(f"✅ 총 {len(verified_results)}개의 Soft Data 팩트체크 완료!")
     

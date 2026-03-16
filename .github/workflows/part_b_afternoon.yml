@@ -15,10 +15,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 2. 리눅스용 WeasyPrint 의존성 설치 (아주 중요!)
-        # 윈도우에서 GTK3를 설치했던 것처럼, 리눅스(우분투) 컴퓨터에도 PDF를 그릴 붓과 물감을 설치해 줍니다.
+        # 리눅스 컴퓨터에 PDF를 그릴 도구와 '한글 폰트(fonts-noto-cjk)'를 설치합니다.
         run: |
           sudo apt-get update
-          sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 libjpeg-dev libopenjp2-7-dev libffi-dev
+          sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 libjpeg-dev libopenjp2-7-dev libffi-dev fonts-noto-cjk
           fc-cache -fv
 
       - name: 3. 파이썬 환경 세팅 (3.12)

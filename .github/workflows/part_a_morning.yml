@@ -1,0 +1,35 @@
+name: Part A - Morning Fact Check
+
+on:
+  schedule:
+    # 깃허브 서버는 UTC(세계 표준시) 기준입니다. 한국 시간(KST) 오전 7시는 UTC 기준 전날 밤 10시(22:00)입니다.
+    - cron: '0 22 * * 1-5' # 월~금(1-5) 평일 오전 7시에 작동
+  workflow_dispatch: # 깃허브 웹페이지에서 버튼을 눌러 수동으로 실행할 수 있게 해주는 마법의 옵션
+
+jobs:
+  run-part-a:
+    runs-on: ubuntu-latest # 깃허브가 빌려주는 무료 리눅스 컴퓨터
+
+    steps:
+      - name: 1. 저장소 코드 가져오기
+        uses: actions/checkout@v4
+
+      - name: 2. 파이썬 환경 세팅 (3.12)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 3. 파이썬 패키지 설치
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 4. Part A 파이프라인 실행
+        # 로컬의 .env 대신, 깃허브에 숨겨둔 비밀번호(Secrets)를 환경변수로 주입합니다.
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_ADMIN_CHAT_ID: ${{ secrets.TELEGRAM_ADMIN_CHAT_ID }}
+        run: python -m pipelines.run_part_a

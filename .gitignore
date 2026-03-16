@@ -9,5 +9,5 @@ __pycache__/
 # VS Code Settings
 .vscode/
 
-# Outputs & Temp files
-outputs/
+# Outputs
+reports/
